@@ -8,7 +8,7 @@ public class EmpleadosDTO {
     private String apellidoMaEmpleado;
     private Long idCargo;
     private LocalDate fechaDeNacimiento;
-    private String sexo;
+    private Long idSexo;
     private String correoEmpleado;
     private String numeroEmpleado;
     private String direccionEmpleado;
@@ -53,12 +53,12 @@ public class EmpleadosDTO {
         this.fechaDeNacimiento = fechaDeNacimiento;
     }
 
-    public String getSexo() {
-        return sexo;
+    public Long getIdSexo() {
+        return idSexo;
     }
 
-    public void setSexo(String sexo) {
-        this.sexo = sexo;
+    public void setIdSexo(Long idSexo) {
+        this.idSexo = idSexo;
     }
 
     public String getCorreoEmpleado() {

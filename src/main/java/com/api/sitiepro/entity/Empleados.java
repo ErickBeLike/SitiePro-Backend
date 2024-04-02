@@ -23,8 +23,9 @@ public class Empleados {
     private Cargos idCargo;
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaDeNacimiento;
-    @Column(name = "sexo", nullable = false)
-    private String sexo;
+    @ManyToOne
+    @JoinColumn(name = "sexo", nullable = false)
+    private Sexo idSexo;
     @Column(name = "correo")
     private String correoEmpleado;
     @Column(name = "telefono")
@@ -80,12 +81,12 @@ public class Empleados {
         this.fechaDeNacimiento = fechaDeNacimiento;
     }
 
-    public String getSexo() {
-        return sexo;
+    public Sexo getIdSexo() {
+        return idSexo;
     }
 
-    public void setSexo(String sexo) {
-        this.sexo = sexo;
+    public void setIdSexo(Sexo idSexo) {
+        this.idSexo = idSexo;
     }
 
     public String getCorreoEmpleado() {

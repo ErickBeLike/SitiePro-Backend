@@ -32,7 +32,7 @@ public class VentasService {
         return ventasRepository.findAll();
     }
 
-    public Ventas buscarVenta(Long idVenta) throws ResourceNotFoundException {
+    public Ventas buscarVentaId(Long idVenta) throws ResourceNotFoundException {
         return ventasRepository.findById(idVenta)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró una venta para el Id: " + idVenta));
     }

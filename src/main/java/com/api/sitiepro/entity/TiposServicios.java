@@ -12,7 +12,7 @@ public class TiposServicios {
     @Column(name = "id_tipo_servicio")
     private Long idTipoServicio;
     @Column(name = "tipo_servicio")
-    private String TipoServicio;
+    private String tipoServicio;
 
     public Long getIdTipoServicio() {
         return idTipoServicio;
@@ -23,10 +23,10 @@ public class TiposServicios {
     }
 
     public String getTipoServicio() {
-        return TipoServicio;
+        return tipoServicio;
     }
 
     public void setTipoServicio(String tipoServicio) {
-        TipoServicio = tipoServicio;
+        this.tipoServicio = tipoServicio;
     }
 }
