@@ -1,7 +1,7 @@
 package com.api.sitiepro.service;
 
-import com.api.sitiepro.entity.User;
-import com.api.sitiepro.repository.UserRepository;
+import com.api.sitiepro.entity.Usuarios;
+import com.api.sitiepro.repository.UsuariosRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,21 +17,21 @@ import java.util.List;
 @Service
 public class UserDetailsServiceImp implements UserDetailsService {
 
-    private final UserRepository repository;
+    private final UsuariosRepository repository;
 
-    public UserDetailsServiceImp(UserRepository repository) {
+    public UserDetailsServiceImp(UsuariosRepository repository) {
         this.repository = repository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = repository.findByEmail(username)
+        Usuarios usuarios = repository.findByCorreoUsuario(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-        logger.debug("User roles: " + user.getRole());
+        logger.debug("User roles: " + usuarios.getRole());
 
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
-                List.of(new SimpleGrantedAuthority(user.getRole().name())));
+        return new org.springframework.security.core.userdetails.User(usuarios.getCorreoUsuario(), usuarios.getPassword(),
+                List.of(new SimpleGrantedAuthority(usuarios.getRole().name())));
     }
 
     private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImp.class);

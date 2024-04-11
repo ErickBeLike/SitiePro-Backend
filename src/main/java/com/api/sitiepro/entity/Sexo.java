@@ -1,14 +1,12 @@
 package com.api.sitiepro.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "sexo")
 public class Sexo {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id_sexo")
     private Long idSexo;
     @Column(name = "nombre_sexo")

@@ -1,6 +1,6 @@
 package com.api.sitiepro.service;
 
-import com.api.sitiepro.entity.User;
+import com.api.sitiepro.entity.Usuarios;
 import com.api.sitiepro.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -69,10 +69,10 @@ public class JwtService {
                 .getPayload();
     }
 
-    public String generateToken(User user){
+    public String generateToken(Usuarios usuarios){
         String token = Jwts
                 .builder()
-                .subject(user.getEmail())
+                .subject(usuarios.getCorreoUsuario())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + + 24*60*60*1000))
                 .signWith(getSinginKey())

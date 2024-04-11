@@ -10,7 +10,7 @@ public class Token {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "token")
     private String token;
@@ -20,13 +20,13 @@ public class Token {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private Usuarios usuarios;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -42,12 +42,16 @@ public class Token {
         this.loggedOut = loggedOut;
     }
 
-    public User getUser() {
-        return user;
+    public String getToken() {
+        return token;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public Usuarios getUsuarios() {
+        return usuarios;
+    }
+
+    public void setUsuarios(Usuarios usuarios) {
+        this.usuarios = usuarios;
     }
 }
 

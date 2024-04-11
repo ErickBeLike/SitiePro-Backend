@@ -2,30 +2,26 @@ package com.api.sitiepro.service;
 
 import com.api.sitiepro.entity.AuthenticationResponse;
 import com.api.sitiepro.entity.Token;
-import com.api.sitiepro.entity.User;
+import com.api.sitiepro.entity.Usuarios;
 import com.api.sitiepro.repository.TokenRepository;
-import com.api.sitiepro.repository.UserRepository;
+import com.api.sitiepro.repository.UsuariosRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AuthenticationService {
 
-    private final UserRepository repository;
+    private final UsuariosRepository repository;
     private final PasswordEncoder passwordEncoder;
-
     private final JwtService jwtService;
-
     private final AuthenticationManager authenticationManager;
-
     private final TokenRepository tokenRepository;
 
-    public AuthenticationService(UserRepository repository,
+    public AuthenticationService(UsuariosRepository repository,
                                  PasswordEncoder passwordEncoder,
                                  JwtService jwtService,
                                  AuthenticationManager authenticationManager,
@@ -37,30 +33,27 @@ public class AuthenticationService {
         this.tokenRepository = tokenRepository;
     }
 
-    public AuthenticationResponse register(User request) {
-        User user = new User();
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+    public AuthenticationResponse register(Usuarios request) {
+        Usuarios usuarios = new Usuarios();
+        usuarios.setRole(request.getRole());
+        usuarios.setNombreUsuario(request.getNombreUsuario());
+        usuarios.setCorreoUsuario(request.getCorreoUsuario());
+        usuarios.setContrasenaUsuario(passwordEncoder.encode(request.getContrasenaUsuario()));
 
-        user.setRole(request.getRole());
+        usuarios = repository.save(usuarios);
 
-        user = repository.save(user);
+        String jwt = jwtService.generateToken(usuarios);
 
-        String jwt = jwtService.generateToken(user);
+        revokeAllTokenByUser(usuarios);
 
-        revokeAllTokenByUser(user);
-
-        saveUserToken(jwt, user);
+        saveUserToken(jwt, usuarios);
 
         return new AuthenticationResponse(jwt);
-
     }
 
-    private void revokeAllTokenByUser(User user) {
-        List<Token> validTokenListByUser = tokenRepository.findAllTokenByUser(user.getId());
-        if(!validTokenListByUser.isEmpty()){
+    private void revokeAllTokenByUser(Usuarios usuarios) {
+        List<Token> validTokenListByUser = tokenRepository.findAllTokenByUser(usuarios.getIdUsuario());
+        if (!validTokenListByUser.isEmpty()) {
             validTokenListByUser.forEach(t -> {
                 t.setLoggedOut(true);
             });
@@ -69,35 +62,45 @@ public class AuthenticationService {
         tokenRepository.saveAll(validTokenListByUser);
     }
 
-
-    public AuthenticationResponse autheticate(User request) {
+    public AuthenticationResponse authenticate(Usuarios request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
+                        request.getCorreoUsuario(),
                         request.getPassword()
                 )
         );
 
-        User user = repository.findByEmail(request.getEmail()).orElseThrow();
+        Usuarios usuarios = repository.findByCorreoUsuario(request.getCorreoUsuario()).orElseThrow();
 
         // Revoca los tokens anteriores del usuario antes de generar el nuevo token
-        revokeAllTokenByUser(user);
+        revokeAllTokenByUser(usuarios);
 
-        String token = jwtService.generateToken(user);
-        saveUserToken(token, user);
+        String token = jwtService.generateToken(usuarios);
+        saveUserToken(token, usuarios);
 
         return new AuthenticationResponse(token);
     }
 
-    private void saveUserToken(String jwt, User user) {
+    private void saveUserToken(String jwt, Usuarios usuarios) {
         Token token = new Token();
         token.setToken(jwt);
         token.setLoggedOut(false);
-        token.setUser(user);
+        token.setUsuarios(usuarios);
         tokenRepository.save(token);
     }
 
+    // Método para actualizar un usuario
+    public Usuarios updateUser(Long id, Usuarios request) {
+        Usuarios existingUser = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        existingUser.setRole(request.getRole());
+        existingUser.setNombreUsuario(request.getNombreUsuario());
+        existingUser.setCorreoUsuario(request.getCorreoUsuario());
+        existingUser.setContrasenaUsuario(passwordEncoder.encode(request.getContrasenaUsuario()));
+        // Actualizar otros campos si es necesario...
+
+        return repository.save(existingUser);
+    }
 
 }
-
