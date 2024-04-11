@@ -3,6 +3,9 @@ package com.api.sitiepro.repository;
 import com.api.sitiepro.entity.Usuarios;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface UsuariosRepository extends JpaRepository<Usuarios, Long> {
-    Usuarios findByCorreoUsuario(String correoUsuario);
+    Optional<Usuarios> findByCorreoUsuario(String correoUsuario);
+    //Usuarios findByCorreoUsuario(String correoUsuario);
 }

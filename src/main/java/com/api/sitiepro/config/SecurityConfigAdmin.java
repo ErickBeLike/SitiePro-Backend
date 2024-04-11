@@ -1,7 +1,7 @@
 package com.api.sitiepro.config;
 
-import com.api.sitiepro.filter.JwtAuthenticationFilter;
-import com.api.sitiepro.service.UserDetailsServiceImp;
+import com.api.sitiepro.filter.JwtAuthenticationFilterAdmin;
+import com.api.sitiepro.service.UsuariosService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -20,24 +20,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfigAdmin {
 
-    private final UserDetailsServiceImp userDetailsServiceImp;
+    private final UsuariosService usuariosService;
+    private final JwtAuthenticationFilterAdmin jwtAuthenticationFilterAdmin;
+    private final CustomAccesDeniedHandlerAdmin accessDeniedHandlerAdmin;
+    private final CustomLogoutHandlerAdmin customLogoutHandlerAdmin;
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    private final CustomAccesDeniedHandler accesDeniedHandler;
-
-    private final CustomLogoutHandler logoutHandler;
-
-    public SecurityConfig(UserDetailsServiceImp userDetailsServiceImp,
-                          JwtAuthenticationFilter jwtAuthenticationFilter,
-                          CustomAccesDeniedHandler accesDeniedHandler,
-                          CustomLogoutHandler logoutHandler) {
-        this.userDetailsServiceImp = userDetailsServiceImp;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.accesDeniedHandler = accesDeniedHandler;
-        this.logoutHandler = logoutHandler;
+    public SecurityConfigAdmin(UsuariosService usuariosService,
+                               JwtAuthenticationFilterAdmin jwtAuthenticationFilterAdmin,
+                               CustomAccesDeniedHandlerAdmin accessDeniedHandlerAdmin,
+                               CustomLogoutHandlerAdmin customLogoutHandlerAdmin) {
+        this.usuariosService = usuariosService;
+        this.jwtAuthenticationFilterAdmin = jwtAuthenticationFilterAdmin;
+        this.accessDeniedHandlerAdmin = accessDeniedHandlerAdmin;
+        this.customLogoutHandlerAdmin = customLogoutHandlerAdmin;
     }
 
     @Bean
@@ -45,24 +42,22 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
-                        req -> req.requestMatchers("/login/","/register/")
+                        req->req.requestMatchers("/inicio/**", "/registro/**")
                                 .permitAll()
-                                .requestMatchers("/admin_only/").hasAuthority("ADMIN")
+                                .requestMatchers("/admin_admin/**").hasAnyAuthority("ADMIN")
                                 .anyRequest()
                                 .authenticated()
-
-                ).userDetailsService(userDetailsServiceImp)
-                .exceptionHandling(e->e.accessDeniedHandler(accesDeniedHandler)
+                ).userDetailsService(usuariosService)
+                .exceptionHandling(e->e.accessDeniedHandler(accessDeniedHandlerAdmin)
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .sessionManagement(session->session
+                .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout(l->l.logoutUrl("/logout")
-                        .addLogoutHandler(logoutHandler)
+                .addFilterBefore(jwtAuthenticationFilterAdmin, UsernamePasswordAuthenticationFilter.class)
+                .logout(l->l.logoutUrl("/logout_admin")
+                        .addLogoutHandler(customLogoutHandlerAdmin)
                         .logoutSuccessHandler(
-                                ((request, response, authentication) -> SecurityContextHolder.clearContext()
-                                ))
-                )
+                                (request, response, authentication) -> SecurityContextHolder.clearContext()
+                        ))
                 .build();
     }
 
@@ -75,8 +70,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
-
-
-
 }
-
